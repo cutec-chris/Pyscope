@@ -58,8 +58,8 @@ def printit(ra_int, dec_int):
     dec_s = d % 60; d /= 60;
     dec_m = d % 60; d /= 60;
 
-    print "ra =", h,"h", ra_m,"m",ra_s,".",ra_ms
-    print "dec =",dec_sign, d,"d", dec_m,"m",dec_s,".",dec_ms
+    print("ra =", h,"h", ra_m,"m",ra_s,".",ra_ms)
+    print("dec =",dec_sign, d,"d", dec_m,"m",dec_s,".",dec_ms)
 
 
 while True:
@@ -69,31 +69,34 @@ while True:
         if i is listening_socket:
             new_socket, addr = listening_socket.accept()
             open_sockets.append(new_socket)
+            print("Connection established")
         else:
             data = i.recv(1024)
             if data == "":
                 open_sockets.remove(i)
-                print "Connection closed"
+                print("Connection closed")
             else:
-                print repr(data)
-                data = struct.unpack("3iIi", data)
-                print "%x, %o" % (data[3], data[3])
-                ra = data[3]*(M_PI/0x80000000)
-                dec = data[4]*(M_PI/0x80000000)
-                cdec = cos(dec)
+                print(repr(data))
+                try:
+                    data = struct.unpack("3iIi", data)
+                    print("%x, %o" % (data[3], data[3]))
+                    ra = data[3]*(M_PI/0x80000000)
+                    dec = data[4]*(M_PI/0x80000000)
+                    cdec = cos(dec)
 
-                desired_pos = []
-                desired_pos.append(cos(ra)*cdec)
-                desired_pos.append(sin(ra)*cdec)
-                desired_pos.append(sin(dec))
-                printit(data[3], data[4])
-                print desired_pos
-                
-                #Set desired position and get current
-                #send current position back to client
-                #update current position
-                
-                reply = struct.pack("3iIii", 24, 0, time.time(), data[3], data[4], 0)
-                #print repr(reply)
-                print
-                i.send(reply)
+                    desired_pos = []
+                    desired_pos.append(cos(ra)*cdec)
+                    desired_pos.append(sin(ra)*cdec)
+                    desired_pos.append(sin(dec))
+                    printit(data[3], data[4])
+                    print(desired_pos)
+                    
+                    #Set desired position and get current
+                    #send current position back to client
+                    #update current position
+                    
+                    reply = struct.pack("3iIii", 24, 0, time.time(), data[3], data[4], 0)
+                    #print repr(reply)
+                    print
+                    i.send(reply)
+                except: pass
